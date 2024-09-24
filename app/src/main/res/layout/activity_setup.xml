@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="30dp"
+    android:paddingTop="80dp"
+    android:paddingRight="30dp"
+    android:paddingBottom="80dp"
+    tools:context=".SetupActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_setup_activity"
+        android:padding="30dp">
+
+        <LinearLayout
+            android:id="@+id/main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/info_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/setup_font"
+                android:gravity="center"
+                android:padding="20dp"
+                android:text="Enabled"
+                android:textColor="#00FF00"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/setup_font"
+                android:gravity="center"
+                android:text="PATH CURRENT ONLY PATH :Download:" />
+
+            <TextView
+                android:id="@+id/howtouse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/setup_font"
+                android:gravity="center"
+                android:padding="20sp"
+                android:text="How To Use ? Click Me"
+                android:textColor="#00CCFF"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/permission_request"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/setup_font"
+                android:gravity="center"
+                android:text="Requered Permissions"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="50dp">
+
+                <TextView
+                    android:id="@+id/info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/setup_font"
+                    android:gravity="center"
+                    android:text="Read/Write Storage"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/info2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:fontFamily="@font/setup_font"
+                    android:gravity="center"
+                    android:text="We Need Access To Your Files And Photos And Others To Lock Them From Unknown Bad Hackers :)"
+                    android:textColor="#FFFFFF"
+                    android:typeface="sans" />
+
+                <Button
+                    android:id="@+id/grant"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#00B155"
+                    android:padding="10dp"
+                    android:text="Grant" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+</FrameLayout>

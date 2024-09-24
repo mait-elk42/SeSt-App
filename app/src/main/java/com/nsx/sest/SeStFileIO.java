@@ -54,14 +54,14 @@ public class SeStFileIO {
             throw new FileNotFoundException("File Not Found - الملف غير موجود");
         this._worker = new SecStWorker("mait-elk");
     }
-    private byte[] ReadBytes() throws IOException {
+    public byte[] ReadBytes() throws IOException {
         FileInputStream _fin_stream = new FileInputStream(_filename);
         byte[] data = new byte[_fin_stream.available()];
         _fin_stream.read(data);
         _fin_stream.close();
         return (data);
     }
-    private void WriteBytes(byte[] data) throws IOException {
+    public void WriteBytes(byte[] data) throws IOException {
         FileOutputStream _fout_stream = new FileOutputStream(_filename);
         _fout_stream.write(data);
         _fout_stream.close();

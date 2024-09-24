@@ -30,12 +30,18 @@ import android.widget.Toast;
 
 import com.nsx.sest.databinding.ActivitySetupBinding;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @TargetApi(Build.VERSION_CODES.N)
@@ -61,25 +67,61 @@ public class TileControl extends TileService {
         super.onStopListening();
         // Called when the tile is no longer visible
     }
+    class ConfigElement {
+        public String target_path;
+        public String[] target_extensions;
 
+        public ConfigElement(String target_path, String[] target_extensions) {
+            this.target_path = target_path;
+            this.target_extensions = target_extensions;
+        }
+    }
     @Override
     public void onClick() {
         super.onClick();
         // Handle tile click
         Tile tile = getQsTile();
+        List<ConfigElement> ConfigeElements = new ArrayList<>();
+        Toast.makeText(this, "hello there", Toast.LENGTH_SHORT).show();
+        try {
+            byte[] config = new SeStFileIO(this, Environment.getExternalStorageDirectory().toString() + "/" + ".sestconfig").ReadBytes();
+            String configdata = new String( config, StandardCharsets.UTF_8 );
+            Toast.makeText( this, configdata, Toast.LENGTH_SHORT ).show();
+            String[] lines = configdata.split("\n");
+            for (String line: lines) {
+                String target_path = line.split(":")[0].trim();
+                String[] target_extensions = line.split(":")[1].split(",");
+                {
+                    int i = 0;
+                    while (i < target_extensions.length) {
+                        target_extensions[i] = target_extensions[i].trim();
+                        i++;
+                    }
+                }
+                ConfigeElements.add( new ConfigElement(target_path, target_extensions));
+            }
+//            for (ConfigElement element: ConfigeElements)
+//            {
+//                System.out.println("Target Path :" + element.target_path + ":");
+//                for (String s: element.target_extensions) {
+//                    System.out.println("->" + s +"<-");
+//                }
+//            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Some Problem In Your Config File", Toast.LENGTH_SHORT).show();
+            return ;
+        }
         switch (tile.getState()) {
             case Tile.STATE_ACTIVE: {
                 tile.setState(Tile.STATE_UNAVAILABLE);
                 Toast.makeText(this, "Tile Deactivated", Toast.LENGTH_SHORT).show();
-                showWorkerNotification(this, Exec_Type.Decrypt, tile);
-//                    unlockAndRun(() -> showDialog(Exec_Type.Ecrypt));
+                showWorkerNotification(this, Exec_Type.Decrypt, tile, null);
             }
             break;
             case Tile.STATE_INACTIVE: {
                 tile.setState(Tile.STATE_UNAVAILABLE);
                 Toast.makeText(this, "Tile Activated", Toast.LENGTH_SHORT).show();
-                showWorkerNotification(this, Exec_Type.Encrypt, tile);
-//                    unlockAndRun(() -> showDialog(Exec_Type.Decrypt));
+                showWorkerNotification(this, Exec_Type.Encrypt, tile, ConfigeElements);
             }
             break;
             case Tile.STATE_UNAVAILABLE: {
@@ -91,63 +133,13 @@ public class TileControl extends TileService {
                 break;
         }
         tile.updateTile();
-//        if (tile.getState() == Tile.STATE_ACTIVE) {
-//            tile.setState(Tile.STATE_INACTIVE);
-//            Toast.makeText(this, "Tile Deactivated", Toast.LENGTH_SHORT).show();
-//            unlockAndRun(new Runnable() {
-//                @Override
-//                public void run() {
-//                    showDialog(Exec_Type.Ecrypt);
-//                }
-//            });
-//        }
-//        else {
-//            tile.setState(Tile.STATE_ACTIVE);
-//            Toast.makeText(this, "Tile Activated", Toast.LENGTH_SHORT).show();
-//            unlockAndRun(new Runnable() {
-//                @Override
-//                public void run() {
-//                    showDialog(Exec_Type.Decrypt);
-//                }
-//            });
-////            Intent in = new Intent(this, MainActivity.class);
-////            in.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-////            startActivity(in);
-//        }
     }
-//    private void showDialog(Exec_Type type)
-//    {
-//        Dialog dialog = new Dialog(this);
-//        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        dialog.setContentView(R.layout.sestialog);
-//        dialog.setCancelable(false);
-//        Button b = dialog.findViewById(R.id.button);
-//        b.setClickable(false);
-//        b.setOnClickListener(
-//        view -> {
-//            dialog.cancel();
-//            changeable = true;
-//        });
-//        new Thread(() -> {
-////            getAllPngFilesRecursive("", new String[]{"png", "jpeg", "jpg"});
-//            System.out.println("ALL PICS : " + i);
-//            Handler handler = new Handler(Looper.getMainLooper());
-//            handler.post(new Runnable() {
-//                public void run() {
-//                    TextView t = dialog.findViewById(R.id.progtext);
-//                    t.setText("ALL PICS : " + i);
-//                    b.setClickable(true);
-//                }
-//            });
-//        }).start();
-//        showDialog(dialog);
-//    }
-    public void showWorkerNotification(Context context, Exec_Type type, Tile tile) {
+    public void showWorkerNotification(Context context, Exec_Type type, Tile tile, List<ConfigElement> ConfigElements) {
         String _what = "Encrypt";
         if (type == Exec_Type.Decrypt)
             _what = "Decrypt";
         final String what = _what;
-        final String noti_title = "FINDING..";
+        final String noti_title = "Finding..";
         String subtext = what+"ing...";
         final String channel_name = "Worker [IMPORTANT] ( Like You :) )";
         final String message = "Don't Turn Off Your Device!";
@@ -180,14 +172,19 @@ public class TileControl extends TileService {
         // Show the notification
         notificationManager.notify(1, builder.build());
 
-        String targetpath = "Pictures/Picsart";
         new Thread(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
-            List<File> files;
-            if (type == Exec_Type.Encrypt)
-                    files = getAllFilesWith(targetpath, new String[]{"png", "jpeg", "jpg"}, false);
-            else
-                files = getAllFilesWith(targetpath, new String[]{"$_$"}, false);
+            List<File> files = new ArrayList<>();
+            if (type == Exec_Type.Encrypt) {
+                for (ConfigElement element: ConfigElements) {
+                    files.addAll(getAllFilesWith(element.target_path, element.target_extensions, false));
+                }
+            }
+            else {
+                for (ConfigElement element: ConfigElements) {
+                    files.addAll(getAllFilesWith(element.target_path, new String[]{"$_$"}, false));
+                }
+            }
             int i = 0;
             for (File file: files)
             {
@@ -197,7 +194,6 @@ public class TileControl extends TileService {
                     notificationManager.notify(1, builder.build());
                 });
                 final String path = file.getAbsolutePath();
-                System.out.println(what + "ing path : " + path);
                 try {
                     new SeStFileIO(this, path).exec(type);
                 } catch (IOException e) {
@@ -212,7 +208,7 @@ public class TileControl extends TileService {
                     tile.setState(Tile.STATE_INACTIVE);
                 tile.updateTile();
                 notificationManager.cancel(1);
-                showInfoNotification(context, type);
+                showInfoNotification(context, type, files.size());
             } );
         }).start();
 
@@ -227,15 +223,19 @@ public class TileControl extends TileService {
 //            showInfoNotification(context, true);
 //        }, 3000);
     }
-    public void showInfoNotification(Context context, Exec_Type type) {
-        final String title = "title 2";
-        final String subtext = "subtext 2";
-        final String name = "name 2";
-        final String message = "message text is this 2";
-        final String channelId = "worker 2";
+    public void showInfoNotification(Context context, Exec_Type type, int total) {
+        String _what = "Encrypt";
+        if (type == Exec_Type.Decrypt)
+            _what = "Decrypt";
+        final String what = _what;
+        final String noti_title = what+"ed " + total + " Picture :)";
+        String subtext = what+" Successfully";
+        final String channel_name = "Noticer [RECOMMENDED]";
+        final String message = what+"ing Successfully ✔";
+        final String channelId = "noticer";
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId, name, NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel channel = new NotificationChannel(channelId, channel_name, NotificationManager.IMPORTANCE_HIGH);
             notificationManager.createNotificationChannel(channel);
         }
 
@@ -249,8 +249,8 @@ public class TileControl extends TileService {
         }
 
         // Notification properties :)
-        builder.setSmallIcon(android.R.drawable.btn_star) // Default system icon
-                .setContentTitle(title)
+        builder.setSmallIcon(R.drawable.lock) // Default system icon
+                .setContentTitle(noti_title)
                 .setContentText(message)
                 .setSubText(subtext);
         notificationManager.notify(2, builder.build());

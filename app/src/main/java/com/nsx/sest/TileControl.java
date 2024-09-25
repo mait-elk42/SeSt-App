@@ -115,7 +115,7 @@ public class TileControl extends TileService {
             case Tile.STATE_ACTIVE: {
                 tile.setState(Tile.STATE_UNAVAILABLE);
                 Toast.makeText(this, "Tile Deactivated", Toast.LENGTH_SHORT).show();
-                showWorkerNotification(this, Exec_Type.Decrypt, tile, null);
+                showWorkerNotification(this, Exec_Type.Decrypt, tile, ConfigeElements);
             }
             break;
             case Tile.STATE_INACTIVE: {
@@ -160,14 +160,14 @@ public class TileControl extends TileService {
         }
 
         // Notification properties :)
-        builder.setSmallIcon(android.R.drawable.btn_star) // Default system icon
+        builder.setSmallIcon(android.R.drawable.ic_lock_lock) // Default system icon
                 .setContentTitle(noti_title)
                 .setContentText(message)
                 .setSubText(subtext)
                 .setAutoCancel(true)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
-                .setProgress(0, 0, true);
+                .setProgress(0, 0, false);
 
         // Show the notification
         notificationManager.notify(1, builder.build());
@@ -189,8 +189,10 @@ public class TileControl extends TileService {
             for (File file: files)
             {
                 int finalI = i;
+                int finalI1 = i;
                 handler.post( () -> {
                     builder.setContentTitle(finalI + "/" + files.size());
+                    builder.setProgress(100, files.size() / 100 * finalI1, false);
                     notificationManager.notify(1, builder.build());
                 });
                 final String path = file.getAbsolutePath();
@@ -249,7 +251,7 @@ public class TileControl extends TileService {
         }
 
         // Notification properties :)
-        builder.setSmallIcon(R.drawable.lock) // Default system icon
+        builder.setSmallIcon(android.R.drawable.ic_lock_lock) // Default system icon
                 .setContentTitle(noti_title)
                 .setContentText(message)
                 .setSubText(subtext);

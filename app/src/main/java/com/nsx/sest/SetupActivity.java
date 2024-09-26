@@ -13,6 +13,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.widget.Toast;
+
+import com.nsx.sest.PathPicker.PathPicker;
 import com.nsx.sest.databinding.ActivitySetupBinding;
 import java.io.File;
 import java.util.ArrayList;
@@ -63,13 +65,13 @@ public class SetupActivity extends Activity {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mbasic.facebook.com/story.php?story_fbid=pfbid02g4EDqgXU9n1yLt2dJu5mtN5kSMdGqcinwxuEEihv3iQx6susyagd8pAK2RG2ptKYl&id=100025154777224")));
             }
         });
-
-//        try {
-//            new SeStFileIO(Environment.getExternalStorageDirectory().toString() + "/fm.png").exec(Exec_Type.Decrypt);
-//        } catch (FileNotFoundException e) {
-//            throw new RuntimeException(e);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
+        binding.pathSetup.setOnClickListener(view -> {
+            Intent i = new Intent();
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.setClass(this, PathPicker.class);
+            startActivity(i);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            Toast.makeText(this, "clicked", Toast.LENGTH_SHORT).show();
+        });
     }
 }

@@ -13,15 +13,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         tools:targetApi="28">
+<!--        android:resizeableActivity="false"-->
         <activity
-            android:name=".SetupActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            android:name=".init_page.InitActivity"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".PathPicker.PathPicker"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+        <activity
+            android:name=".SetupActivity"
+            android:exported="false"
+            android:theme="@style/SSTheme" />
+
         <service
             android:name=".TileControl"
             android:icon="@drawable/lock"
